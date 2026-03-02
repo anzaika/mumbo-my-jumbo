@@ -1,0 +1,8 @@
+{
+  "entities": {
+    "Acme Corporation": { "replacement": "Zephyr Industries", "type": "company" },
+    "Acme Corp": { "replacement": "Zephyr Inc", "type": "company" },
+    "Acme": { "replacement": "Zephyr", "type": "company" },
+    "NorthStar Labs": { "replacement": "Pinnacle Labs", "type": "company" }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "entities": {
+    "jane.doe@acmecorp.com": { "replacement": "alex.chen@northwind.com", "type": "email" },
+    "bob.smith@acmecorp.com": { "replacement": "sam.lee@northwind.com", "type": "email" },
+    "support@acmecorp.com": { "replacement": "support@northwind.com", "type": "email" },
+    "Jane Doe": { "replacement": "Alex Chen", "type": "person" },
+    "Bob Smith": { "replacement": "Sam Lee", "type": "person" },
+    "acmecorp.com": { "replacement": "northwind.com", "type": "domain" }
+  }
+}

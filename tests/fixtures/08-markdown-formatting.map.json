@@ -1,0 +1,8 @@
+{
+  "entities": {
+    "Jane Doe": { "replacement": "Alex Chen", "type": "person" },
+    "Bob Smith": { "replacement": "Sam Lee", "type": "person" },
+    "Acme Corporation": { "replacement": "Northwind Industries", "type": "company" },
+    "Project Chimera": { "replacement": "Project Phoenix", "type": "internal_tool" }
+  }
+}

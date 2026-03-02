@@ -1,0 +1,9 @@
+{
+  "entities": {
+    "Jane Doe": { "replacement": "Alex Chen", "type": "person" },
+    "jane doe": { "replacement": "alex chen", "type": "person" },
+    "JANE DOE": { "replacement": "ALEX CHEN", "type": "person" },
+    "Bob Smith": { "replacement": "Sam Lee", "type": "person" },
+    "Maria Garcia": { "replacement": "Priya Patel", "type": "person" }
+  }
+}

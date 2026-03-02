@@ -1,0 +1,9 @@
+{
+  "entities": {
+    "Acme Corporation": { "replacement": "Northwind Industries", "type": "company" },
+    "Acme Corp": { "replacement": "Northwind Inc", "type": "company" },
+    "Acme": { "replacement": "Northwind", "type": "company" },
+    "Vortex Platform": { "replacement": "Atlas Platform", "type": "internal_tool" },
+    "Project Chimera": { "replacement": "Project Phoenix", "type": "internal_tool" }
+  }
+}

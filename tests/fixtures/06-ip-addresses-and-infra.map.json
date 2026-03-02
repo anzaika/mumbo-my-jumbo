@@ -1,0 +1,9 @@
+{
+  "entities": {
+    "192.168.1.100": { "replacement": "10.20.30.100", "type": "ip_address" },
+    "10.0.0.50": { "replacement": "10.20.30.50", "type": "ip_address" },
+    "172.16.0.1": { "replacement": "10.20.30.1", "type": "ip_address" },
+    "Helios Monitor": { "replacement": "Beacon Monitor", "type": "internal_tool" },
+    "Nexus Gateway": { "replacement": "Portal Gateway", "type": "internal_tool" }
+  }
+}

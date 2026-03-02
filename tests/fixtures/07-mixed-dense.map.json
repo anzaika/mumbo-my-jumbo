@@ -1,0 +1,24 @@
+{
+  "entities": {
+    "Acme Corporation": { "replacement": "Northwind Industries", "type": "company" },
+    "Acme Corp": { "replacement": "Northwind Inc", "type": "company" },
+    "Acme": { "replacement": "Northwind", "type": "company" },
+    "Jane Doe": { "replacement": "Alex Chen", "type": "person" },
+    "Bob Smith": { "replacement": "Sam Lee", "type": "person" },
+    "Maria Garcia": { "replacement": "Priya Patel", "type": "person" },
+    "Tom Wilson": { "replacement": "Wei Zhang", "type": "person" },
+    "jane.doe@acmecorp.com": { "replacement": "alex.chen@northwind.com", "type": "email" },
+    "bob.smith@acmecorp.com": { "replacement": "sam.lee@northwind.com", "type": "email" },
+    "https://api.acmecorp.com/v2": { "replacement": "https://api.northwind.com/v2", "type": "url" },
+    "https://dashboard.acmecorp.com": { "replacement": "https://dashboard.northwind.com", "type": "url" },
+    "acmecorp.com": { "replacement": "northwind.com", "type": "domain" },
+    "api.acmecorp.com": { "replacement": "api.northwind.com", "type": "domain" },
+    "dashboard.acmecorp.com": { "replacement": "dashboard.northwind.com", "type": "domain" },
+    "sk-prod-xyz789": { "replacement": "sk-REDACTED-KEY-001", "type": "api_key" },
+    "192.168.1.100": { "replacement": "10.20.30.100", "type": "ip_address" },
+    "Vortex Platform": { "replacement": "Atlas Platform", "type": "internal_tool" },
+    "Helios Monitor": { "replacement": "Beacon Monitor", "type": "internal_tool" },
+    "Project Chimera": { "replacement": "Project Phoenix", "type": "internal_tool" },
+    "Project Atlas": { "replacement": "Project Horizon", "type": "internal_tool" }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "entities": {
+    "sk-live-abcdef123456": { "replacement": "sk-REDACTED-KEY-002", "type": "api_key" },
+    "https://api.acmecorp.com/v2/data": { "replacement": "https://api.northwind.com/v2/data", "type": "url" },
+    "192.168.1.100": { "replacement": "10.20.30.100", "type": "ip_address" },
+    "ACME_API_SECRET=supersecretvalue": { "replacement": "EXAMPLE_API_SECRET=placeholder", "type": "secret" },
+    "api.acmecorp.com": { "replacement": "api.northwind.com", "type": "domain" },
+    "acmecorp.com": { "replacement": "northwind.com", "type": "domain" }
+  }
+}

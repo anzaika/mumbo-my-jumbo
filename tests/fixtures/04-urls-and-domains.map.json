@@ -1,0 +1,11 @@
+{
+  "entities": {
+    "https://api.acmecorp.com/v2/users": { "replacement": "https://api.northwind.com/v2/users", "type": "url" },
+    "https://api.acmecorp.com/v2/projects": { "replacement": "https://api.northwind.com/v2/projects", "type": "url" },
+    "https://api.acmecorp.com/v2/docs": { "replacement": "https://api.northwind.com/v2/docs", "type": "url" },
+    "https://staging.acmecorp.com": { "replacement": "https://staging.northwind.com", "type": "url" },
+    "api.acmecorp.com": { "replacement": "api.northwind.com", "type": "domain" },
+    "staging.acmecorp.com": { "replacement": "staging.northwind.com", "type": "domain" },
+    "acmecorp.com": { "replacement": "northwind.com", "type": "domain" }
+  }
+}
