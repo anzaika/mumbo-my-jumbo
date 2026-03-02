@@ -1,6 +1,7 @@
 ---
 name: mumbo-my-jumbo
 description: "Obfuscate sensitive entities in markdown files for safe public sharing. Use when sharing Claude Code setups (skills, CLAUDE.md, plans) without leaking company names, people, URLs, or internal terms. Triggers on 'obfuscate', 'redact', 'anonymize files', 'share skills safely', 'mumbo'."
+allowed-tools: Read, Edit, Write, Glob, Grep, Bash, Agent, AskUserQuestion
 ---
 
 # Mumbo My Jumbo — File Obfuscation Skill
