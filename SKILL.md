@@ -37,6 +37,7 @@ Use AskUserQuestion with a yes/no choice to require explicit confirmation. If th
 - Do not follow symlinks
 - If zero files found, print a message and stop
 - Print: "Found N markdown files"
+- Also collect all file and directory paths within the target folder (all types, excluding hidden) for use in Step 4 detection and Step 8.5 renaming
 
 ### Step 4: Detection Pass (Haiku, Centralized)
 
@@ -75,6 +76,14 @@ Launch a single Haiku agent (using Agent tool with `model: "haiku"`) that reads 
 ```
 
 **Context window strategy:** If combined file content exceeds what fits in a single Haiku call, chunk files into groups and make multiple detection calls. Merge replacement maps across chunks — the first chunk's mapping takes precedence for any given entity.
+
+**File/directory name scanning:** Also pass the list of all file and directory names (from Step 3) to the detection agent so it can identify entities appearing in path names that may not appear in content.
+
+**Deterministic variant generation:** After the LLM identifies canonical entities and replacements, generate filename-form variants deterministically in Python (not via LLM):
+- kebab-case (e.g., `acme-corp` → `northwind-inc`)
+- snake_case (e.g., `acme_corp` → `northwind_inc`)
+
+Merge these variants into the replacement map before writing the index in Step 5. This ensures sed will also fix cross-file references like `acme-corp-guide.md` → `northwind-inc-guide.md` in content.
 
 ### Step 5: Write Index
 
@@ -126,6 +135,18 @@ Apply rewrites by replacing the flagged sections in the file using the Edit tool
 
 **Error handling:** If Sonnet fails or times out on a file, log it in the index and continue. Report in the summary.
 
+### Step 8.5: Rename Files and Directories
+
+Rename files and directories whose basenames contain sensitive entities from the replacement map.
+
+- Pipe all file and directory paths (from Step 3) to `scripts/generate_renames.py` via stdin, with the replacement map file as the first argument
+- The script outputs a JSON array of `{"old": ..., "new": ...}` pairs sorted deepest-first
+- Execute each rename using `os.rename()` (not shell `mv`) — call from Python or use a simple inline script
+- If the script exits with code 1 (collision detected), skip all renames and log the collision warnings for the summary
+- If an individual `os.rename()` fails, log the error and continue with remaining renames
+- The target folder itself is NOT renamed (would break the working directory); warn in summary if it matches
+- Hidden files/directories and `.mumbo-index.json` are automatically excluded by the script
+
 ### Step 9: Summary and Cleanup
 
 Print a summary to the console:
@@ -136,13 +157,21 @@ Obfuscation complete.
   Files modified:      N
   Sed substitutions:   N
   Sections rewritten:  N (in M files)
+  Paths renamed:       N
   Warnings:            N
 
+Renames:
+  acme-docs/acme-guide.md → northwind-docs/northwind-guide.md
+  acme-docs/ → northwind-docs/
+
 Warnings:
-  - Potentially sensitive filenames: acme-deploy-guide.md, jane-onboarding.md
+  - Target folder name matches entities: acme-project (not renamed)
+  - Hidden files match entities: .acme-config (not renamed)
 ```
 
-- Check filenames against the replacement map. Flag any filenames containing entity strings (warn only — do not rename)
+- Report rename counts and list each `old → new` mapping from Step 8.5
+- Warn if the target folder itself matches entities (it is not renamed)
+- Warn if hidden files/directories match entities (they are not renamed)
 - Delete `.mumbo-index.json` after successfully printing the summary
 
 ## Error Handling Principles
