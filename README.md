@@ -7,7 +7,7 @@ A Claude Code skill that obfuscates sensitive entities in markdown files for saf
 Mumbo My Jumbo uses a three-stage pipeline:
 
 1. **Detect** — A Haiku agent reads all your markdown files and identifies sensitive entities (company names, people, domains, API keys, etc.), producing a JSON replacement map
-2. **Replace** — `sed` performs fast, longest-first substitution across all files; a verification pass catches anything sed missed, and a Sonnet agent rewrites those sections
+2. **Replace** — A Node.js script performs fast, single-pass longest-first substitution across all files; a verification pass catches anything the script missed, and a Sonnet agent rewrites those sections
 3. **Rename** — Files and directories whose names contain sensitive entities get renamed to match
 
 The result: your files read naturally with realistic-sounding fake names, and no sensitive information leaks through content or filenames.
@@ -24,7 +24,7 @@ You'll see a confirmation prompt (this modifies files in place — no undo), the
 Obfuscation complete.
   Files scanned:       12
   Files modified:      9
-  Sed substitutions:   47
+  Replacements:        47
   Sections rewritten:  2 (in 1 files)
   Paths renamed:       3
   Warnings:            0
@@ -58,48 +58,43 @@ Cost scales slowly because the orchestrator overhead is mostly fixed. On a **Max
 
 ## Requirements
 
-- macOS (uses BSD `sed`)
-- Python 3
 - Claude Code with access to Haiku and Sonnet models
 
-No additional dependencies needed — everything ships with macOS.
+No additional dependencies needed — Node.js ships with Claude Code.
 
 ## Project Structure
 
 ```
 SKILL.md                        — Skill definition (workflow + frontmatter)
 scripts/
-  generate_sed.py               — Converts replacement map → sed commands
-  generate_renames.py           — Computes file/directory renames from the map
+  replace.js                    — Reads replacement map, applies to files in-place
+  rename.js                     — Computes and executes file/directory renames
 tests/
   fixtures/                     — 10 test scenarios with input + expected maps
-  test_generate.py              — Tests for generate_sed.py
-  test_escape.py                — Sed escaping edge cases
-  test_apply_renames.py         — Unit tests for apply_replacements()
-  test_compute_renames.py       — Unit tests for compute_renames() + collision detection
-  test_renames_main.py          — CLI/exit-code tests for generate_renames.py
-  test_renames_integration.py   — Integration tests with real directory trees
-  test_e2e.py                   — End-to-end tests (requires API access)
+  helpers.js                    — Shared test fixture helpers
+  test-replace.js               — Unit + CLI tests for replace.js
+  test-replace-integration.js   — Integration tests against fixtures
+  test-rename.js                — Unit + CLI tests for rename.js
+  test-rename-integration.js    — Integration tests with real directory trees
 ```
 
 ## How the Scripts Work
 
-### generate_sed.py
+### replace.js
 
-Reads a JSON replacement map and outputs sed commands. Entities are sorted longest-first to prevent partial matches (e.g., "Acme Corporation" is replaced before "Acme").
+Reads a JSON replacement map and applies replacements directly to files. Entities are sorted longest-first to prevent partial matches (e.g., "Acme Corporation" is replaced before "Acme"). Uses single-pass regex alternation to prevent double-substitution.
 
 ```bash
-echo '{"entities": {"Acme": {"replacement": "Northwind", "type": "company"}}}' \
-  | python3 scripts/generate_sed.py
-# Output: s/Acme/Northwind/g
+node scripts/replace.js map.json file1.md file2.md
+# Outputs JSON summary: {"files_modified": 2, "total_replacements": 15, "results": [...]}
 ```
 
-### generate_renames.py
+### rename.js
 
-Takes a replacement map file as an argument and file paths via stdin. Outputs a JSON array of `old`/`new` rename pairs, sorted deepest-first so child paths are renamed before parents.
+Takes a replacement map file as an argument and file paths via stdin. Computes renames, checks for collisions, executes them deepest-first, and outputs a JSON array of completed renames.
 
 ```bash
-find target/ -not -path '*/.*' | python3 scripts/generate_renames.py map.json
+find target/ -not -path '*/.*' | node scripts/rename.js map.json
 ```
 
 Key behaviors:
@@ -112,10 +107,8 @@ Key behaviors:
 ## Running Tests
 
 ```bash
-python3 -m pytest tests/ --ignore=tests/test_e2e.py
+node --test tests/test-*.js
 ```
-
-The e2e tests require API access and are excluded by default.
 
 ## License
 

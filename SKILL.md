@@ -6,7 +6,7 @@ allowed-tools: Read, Edit, Write, Glob, Grep, Bash, Agent, AskUserQuestion
 
 # Mumbo My Jumbo — File Obfuscation Skill
 
-Obfuscate sensitive content in a folder of `.md` files so they can be shared publicly without leaking private or NDA-covered information. Uses a hybrid approach: fast `sed` substitution for most replacements, with LLM-powered contextual rewrite only for sections where simple substitution fails.
+Obfuscate sensitive content in a folder of `.md` files so they can be shared publicly without leaking private or NDA-covered information. Uses a hybrid approach: fast single-pass Node.js regex substitution for most replacements, with LLM-powered contextual rewrite only for sections where simple substitution fails.
 
 ## Workflow
 
@@ -79,33 +79,45 @@ Launch a single Haiku agent (using Agent tool with `model: "haiku"`) that reads 
 
 **File/directory name scanning:** Also pass the list of all file and directory names (from Step 3) to the detection agent so it can identify entities appearing in path names that may not appear in content.
 
-**Deterministic variant generation:** After the LLM identifies canonical entities and replacements, generate filename-form variants deterministically in Python (not via LLM):
+**Deterministic variant generation:** After the LLM identifies canonical entities and replacements, generate filename-form variants deterministically in JavaScript (not via LLM):
 - kebab-case (e.g., `acme-corp` → `northwind-inc`)
 - snake_case (e.g., `acme_corp` → `northwind_inc`)
 
-Merge these variants into the replacement map before writing the index in Step 5. This ensures sed will also fix cross-file references like `acme-corp-guide.md` → `northwind-inc-guide.md` in content.
+Merge these variants into the replacement map before writing the index in Step 5. This ensures the replacement script will also fix cross-file references like `acme-corp-guide.md` → `northwind-inc-guide.md` in content.
 
 ### Step 5: Write Index
 
 Create `.mumbo-index.json` in the target folder containing:
 - The replacement map from Step 4
 - The list of scanned file paths
-- Status tracking fields (per-file sed result, verification result, rewrite result)
+- Status tracking fields (per-file replacement result, verification result, rewrite result)
 
 This file is used for progress tracking during the run and is auto-deleted after the summary is printed.
 
-### Step 6: Generate and Apply Sed Script
+### Step 6: Apply Replacements
 
-Run `scripts/generate_sed.py` (located relative to this skill's directory) with the replacement map JSON piped to stdin. The script outputs sed commands to stdout.
+Run `scripts/replace.js` (located relative to this skill's directory) with the replacement map JSON file as the first argument and target file paths as remaining arguments.
 
-Apply the sed commands to each file. Run files in parallel where possible (independent files).
+```
+node scripts/replace.js .mumbo-index.json file1.md file2.md ...
+```
 
-The `generate_sed.py` script handles:
+The script reads each file, applies single-pass longest-first replacements using regex alternation, writes modified files back, and outputs a JSON summary to stdout:
+
+```json
+{
+  "files_modified": 3,
+  "total_replacements": 47,
+  "results": [{"file": "path/to/file.md", "replacements": 12}, ...]
+}
+```
+
+The `replace.js` script handles:
 - Sorting entities longest-first to prevent partial matches
-- Escaping sed special characters in both search and replacement strings
-- macOS BSD sed syntax (`sed -i ''`)
+- Single-pass replacement (prevents double-substitution)
+- Case-sensitive matching (the detection pass generates case variants)
 
-**Error handling:** If sed fails on a specific file, log the error in the index, skip that file, and continue. Report failures in the summary.
+**Error handling:** If a file can't be read or written, log the error in the index, skip that file, and continue. Report failures in the summary.
 
 ### Step 7: Verification Pass (Haiku, Parallel Per File)
 
@@ -114,7 +126,7 @@ Fan out one Haiku agent per file using the Agent tool with `model: "haiku"`.
 Each agent:
 - Reads the post-substitution file content
 - Receives the replacement map as context
-- Checks for remaining sensitive content that sed missed
+- Checks for remaining sensitive content that the replacement script missed
 - Flags specific heading-delimited sections (from one `#`/`##`/`###` heading to the next)
 - Returns: file path, list of flagged section headings, reason each section is still sensitive
 
@@ -139,11 +151,13 @@ Apply rewrites by replacing the flagged sections in the file using the Edit tool
 
 Rename files and directories whose basenames contain sensitive entities from the replacement map.
 
-- Pipe all file and directory paths (from Step 3) to `scripts/generate_renames.py` via stdin, with the replacement map file as the first argument
-- The script outputs a JSON array of `{"old": ..., "new": ...}` pairs sorted deepest-first
-- Execute each rename using `os.rename()` (not shell `mv`) — call from Python or use a simple inline script
-- If the script exits with code 1 (collision detected), skip all renames and log the collision warnings for the summary
-- If an individual `os.rename()` fails, log the error and continue with remaining renames
+- Pipe all file and directory paths (from Step 3) to `scripts/rename.js` via stdin, with the replacement map file as the first argument:
+  ```
+  find target/ -not -path '*/.*' | node scripts/rename.js .mumbo-index.json
+  ```
+- The script computes renames, checks for collisions, executes them via `fs.renameSync()` (deepest-first), and outputs a JSON array of `{"old": ..., "new": ...}` pairs to stdout
+- If the script exits with code 1 (collision detected), no renames are executed; log the collision warnings for the summary
+- If an individual rename fails, the script logs the error and continues with remaining renames
 - The target folder itself is NOT renamed (would break the working directory); warn in summary if it matches
 - Hidden files/directories and `.mumbo-index.json` are automatically excluded by the script
 
@@ -155,7 +169,7 @@ Print a summary to the console:
 Obfuscation complete.
   Files scanned:       N
   Files modified:      N
-  Sed substitutions:   N
+  Replacements:   N
   Sections rewritten:  N (in M files)
   Paths renamed:       N
   Warnings:            N
