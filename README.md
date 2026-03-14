@@ -2,6 +2,22 @@
 
 A Claude Code skill that obfuscates sensitive entities in markdown files for safe public sharing. Perfect for sharing your Claude Code setups (skills, CLAUDE.md, plans) without leaking company names, people, URLs, or internal terms.
 
+## Installation
+
+Open Terminal on your Mac and run:
+
+```bash
+git clone https://github.com/anzaika/mumbo-my-jumbo.git ~/.claude/skills/mumbo-my-jumbo
+```
+
+That's it. Claude Code automatically discovers skills in `~/.claude/skills/`. Next time you start Claude Code, type `/mumbo` and it will be available.
+
+To update later:
+
+```bash
+cd ~/.claude/skills/mumbo-my-jumbo && git pull
+```
+
 ## How It Works
 
 Mumbo My Jumbo uses a three-stage pipeline:
