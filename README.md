@@ -44,6 +44,18 @@ Obfuscation complete.
 
 Well-known public entities (Google, AWS, React, PostgreSQL, etc.) are left untouched.
 
+## Cost per Run
+
+A single run uses three models: Opus (orchestrator), Haiku (detection + verification), and Sonnet (contextual rewrites). The Opus orchestrator drives the workflow and accounts for ~90% of the cost — the Haiku and Sonnet sub-agents are negligible by comparison.
+
+| Folder size | Estimated cost |
+| ----------- | -------------- |
+| 5-10 files  | ~$3-5          |
+| 20 files    | ~$4-6          |
+| 50 files    | ~$5-8          |
+
+Cost scales slowly because the orchestrator overhead is mostly fixed. On a **Max subscription**, each run consumes roughly the equivalent of a medium-complexity coding task.
+
 ## Requirements
 
 - macOS (uses BSD `sed`)
