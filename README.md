@@ -4,7 +4,17 @@ Obfuscate sensitive entities in markdown files for safe public sharing. Perfect 
 
 ## Installation
 
-Open Terminal on your Mac and paste this command:
+Open Terminal on your Mac and paste these commands one at a time:
+
+**1. Install Node.js** (skip if you already have it):
+
+```bash
+brew install node
+```
+
+Don't have Homebrew? Install it first: https://brew.sh — or download Node.js directly from https://nodejs.org
+
+**2. Install the skill:**
 
 ```bash
 git clone https://github.com/anzaika/mumbo-my-jumbo.git ~/.claude/skills/mumbo-my-jumbo
@@ -14,7 +24,7 @@ If your Mac asks you to install "Command Line Tools", click **Install** and wait
 
 Restart Claude Code. The `/mumbo` command is now available.
 
-To update later:
+**To update later:**
 
 ```bash
 cd ~/.claude/skills/mumbo-my-jumbo && git pull
@@ -65,8 +75,7 @@ Well-known public names (Google, AWS, React, PostgreSQL, etc.) are left untouche
 ## Requirements
 
 - **Claude Code** on a Max subscription, or with API access that includes Haiku and Sonnet models
-
-No other software needed. Node.js ships with Claude Code.
+- **Node.js** 18+ (install via `brew install node` or from https://nodejs.org)
 
 ## Cost
 

@@ -19,4 +19,4 @@ docs/plans/           — Implementation plans
 - SKILL.md uses imperative/infinitive form (verb-first instructions), not second person
 - Scripts are Node.js (CommonJS) — no npm dependencies, no package.json
 - Runtime tracking file `.mumbo-index.json` is created in the target folder during a run and auto-deleted after
-- No dependencies beyond Node.js (ships with Claude Code)
+- Requires Node.js 18+ (no npm dependencies — scripts use only Node.js stdlib)

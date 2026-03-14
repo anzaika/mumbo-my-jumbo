@@ -16,6 +16,12 @@ Accept a target folder path as a required argument (passed after the slash comma
 
 - Validate the path exists and is a directory
 - If invalid, print an error and stop
+- Check that `node` is available by running `node --version` via Bash. If it fails, print a clear message and stop:
+  ```
+  Node.js is required but not installed.
+  Install it with: brew install node
+  Or download from: https://nodejs.org
+  ```
 
 ### Step 2: Warning and Confirmation
 
